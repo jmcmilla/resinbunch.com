@@ -1,15 +1,16 @@
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+/* eslint-disable @next/next/no-img-element */
+import { Roboto } from 'next/font/google';
+import { ThemeProvider } from '@mui/material/styles';
+import theme from '../theme';
+import { Container, Button, Stack } from '@mui/material';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const roboto = Roboto({
+ weight: ['300', '400', '500', '700'],
+    subsets: ['latin'],
+    display: 'swap',
+    variable: '--font-roboto',
 });
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 
 export const metadata = {
   title: "Create Next App",
@@ -19,8 +20,28 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {children}
+      <body style={{ margin: '0px', padding: '0px' }} className={`${roboto.variable}`}>
+        <Container maxWidth={false} style={{
+          backgroundImage: `url('/background.jpg')`,
+          backgroundAttachment: 'fixed',
+          backgroundSize: 'cover',
+          backgroundPosition: '0px -585px',
+          backgroundRepeat: 'no-repeat',
+        }}>
+          <img
+            width="150px"
+            alt="The Resin Bunch" src="/logo.jpg"
+          />
+        </Container>
+        <Stack direction="row">
+          <Button>Home</Button>
+          <Button>Contact Us</Button>
+        </Stack>
+        <AppRouterCacheProvider>
+          <ThemeProvider theme={theme}>
+            {children}
+          </ThemeProvider>
+        </AppRouterCacheProvider>
       </body>
     </html>
   );
