@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import { Roboto } from 'next/font/google';
 
 const roboto = Roboto({
