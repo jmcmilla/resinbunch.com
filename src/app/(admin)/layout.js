@@ -1,7 +1,9 @@
 'use client';
+
 import { AdminContext } from './context';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from '../../theme';
+import axios from 'axios';
 
 import { Button, Box, AppBar, Toolbar, IconButton, Typography } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -27,6 +29,24 @@ export default function AdminLayout({ children }) {
       window.localStorage.removeItem('token');
     }
   };
+  const callAPI = async (config) => {
+    try {
+      const token = getToken();
+      config.baseURL = 'https://api.resinbunch.com'
+      config.headers = {
+        'Authorization': 'Bearer ' + token,
+      };
+      const result = await axios(config);
+      return result;
+    } catch (e) {
+      if (e.response?.status && e.response?.status === 403) {
+        alert('Session Expired');
+        clearToken();
+        window.location.reload();
+      }
+    }
+
+  }
   const token = getToken();
   const authenticated = token ? true : false;
   if (!token && (typeof window !== 'undefined' && !/\/login\/?/.test(window.location.pathname))) {
@@ -38,6 +58,7 @@ export default function AdminLayout({ children }) {
       setToken,
       token,
       authenticated,
+      callAPI,
     }}>
       <Box sx={{ flexGrow: 1, marginBottom: '10px' }}>
         <AppBar position="static">

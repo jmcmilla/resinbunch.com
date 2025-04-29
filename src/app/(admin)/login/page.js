@@ -21,7 +21,7 @@ export default class Login extends Component {
     try {
       const { username, password } = this.state;
       const { data } = await axios.post('https://api.resinbunch.com/auth', { username, password});
-      this.context.setToken(data.token);
+      this.context.setToken(data.access_token);
       const queryParams = new URLSearchParams(window.location.search);
       if (queryParams.has('returnTo')) {
         window.location.href = queryParams.get('returnTo');
