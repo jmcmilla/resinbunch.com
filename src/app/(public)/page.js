@@ -1,4 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
+'use client';
+
 import { Button, Container, Grid, ImageList, ImageListItem, Paper, Stack, Typography } from "@mui/material";
 
 export default function Home() {
