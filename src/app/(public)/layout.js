@@ -12,31 +12,18 @@ export default class PublicLayout extends Component {
     this.state = {
       current_page: undefined,
     };
-    this.getVariant = this.getVariant.bind(this);
   }
   componentDidMount() {
     if ('undefined' !== typeof window) {
       const pathName = window.location.pathname;
       let current_page;
-      if (pathName == '/' || pathName == '/index.html') {
+      if (/^\/(?:index.html)?$/.test(pathName)) {
         current_page = 'home';
-      } else if (pathName == '/contact-us/' || pathName == '/contact-us/index.html') {
+      } else if (/^\/contact\-us\/?(?:index.html)?/.test(pathName)) {
         current_page = 'contact-us';
       }
       this.setState({ current_page });
     }
-  }
-  getVariant(p) {
-    if ('undefined' !== typeof window) {
-    }
-    let v = 'text';
-    const copy = JSON.parse(JSON.stringify(this.state));
-    const { pathName } = copy;
-    if (pathName == p || pathName == p + '/index.html') {
-      v = 'contained';
-    }
-    console.log('variant: ', pathName, v);
-    return v;
   }
   render() {
     let body = (<div></div>);
