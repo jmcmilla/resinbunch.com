@@ -44,6 +44,7 @@ export default function AdminLayout({ children }) {
         clearToken();
         window.location.reload();
       }
+      throw e;
     }
 
   }
