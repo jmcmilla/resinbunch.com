@@ -3,6 +3,8 @@
 import React from 'react';
 import { AdminContext } from '../context';
 import { Alert, AlertTitle, Button, Container, Divider, Grid, ImageList, ImageListItem, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
+import ImageUpload from './ImageUpload';
+import ProductImageGallery from './ProductImageGallery';
 
 class Admin extends React.Component {
   constructor(props) {
@@ -287,12 +289,40 @@ class Admin extends React.Component {
                   }}
                 />
               </Grid>
-              <Grid item size={12}>
+              <Grid item size={6}>
                 <Button variant="outlined" onClick={(evt) => this.setState({ mode: '', view: 'list' })}>Cancel</Button>
+              </Grid>
+              <Grid item size={6} sx={{ textAlign: 'right' }}>
                 <Button variant="contained" onClick={(evt) => {
                   this.setState({ error: '' }, this.saveProduct);
                 }}>Save</Button>
               </Grid>
+              {this.state.mode === 'edit' && (
+                <>
+                  <ProductImageGallery product_id={this.state.id} />
+                  <Grid item size={12}>
+                    <ImageUpload
+                      maxWidth={900}
+                      maxHeight={1200}
+                      label="Add Image to Gallery"
+                      onSave={async (image) => {
+                        try {
+                          image.product_id = this.state.id;
+                          const request = {
+                            url: '/productImage',
+                            method: 'POST',
+                            data: image
+                          };
+                          await this.context.callAPI(request);
+                          this.setState();
+                        } catch (e) {
+                          this.setState({ error: e.message });
+                        }
+                      }}
+                    />
+                  </Grid>
+                </>
+              )}
             </Grid>
           )}
         </Paper>
