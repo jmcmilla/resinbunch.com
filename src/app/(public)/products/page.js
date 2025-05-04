@@ -3,7 +3,8 @@
 
 import { Component } from 'react';
 import { Alert, AlertTitle, Button, CircularProgress, Container, Grid, ImageList, ImageListItem, ImageListItemBar, Paper, Stack, Typography } from "@mui/material";
-import { callAPI, formatCurrency } from '../utils.js';
+import { callAPI, checkQueue, formatCurrency } from '../utils.js';
+import ImageGallery from './ImageGallery.js';
 
 export default class Products extends Component {
   constructor(props) {
@@ -15,19 +16,20 @@ export default class Products extends Component {
     };
   }
   componentDidMount() {
+    checkQueue();
     const request = {
       url: '/product',
       method: 'GET',
     };
     callAPI(request).then((data) => {
-      this.setState({ loaded: true, error: false, products: data });
+      this.setState({ loaded: true, error: false, products: data.sort((a,b) => a.id - b.id) });
     }).catch((e) => {
       this.setState({ loaded: true, error: e.message });
     });
   }
   render() {
     return (
-      <Container maxWidth="xl">
+      <Container maxWidth="md">
         <Typography variant="h2">Products</Typography>
         {this.state.error && (
           <Alert severity="error">
@@ -39,29 +41,17 @@ export default class Products extends Component {
           <center><CircularProgress /></center>
         )}
         {
-          this.state.loaded && this.state.products.map((p) => {
+          this.state.loaded && this.state.products.filter((p) => p.price > 0 ).map((p, idx) => {
             return (
-              <Grid container size={12} key={p.id}>
-                <Grid size={11}>
+              <Grid container space={1} size={12} key={p.id} sx={{ padding: '5px', backgroundColor: (idx%2 === 0 ? 'rgba(128,128,128,.4)' : 'auto' )}}>
+                <Grid size={{ xs: 11 }}>
                   <Typography variant="h6">{p.description}</Typography>
                 </Grid>
-                <Grid size={1}>
+                <Grid size={{ xs: 1 }} sx={{ textAlign: 'right' }}>
                   <Typography variant="h6">{formatCurrency(p.price)}</Typography>
                 </Grid>
-                <Grid size={12}>
-                  <ImageList>
-                    {
-                      p.images.map((i) => (
-                        <ImageListItem key={i.uuid}>
-                          <img src={i.data} alt={i.caption} />
-                          <ImageListItemBar
-                            title={i.caption}
-                            position="below"
-                          />
-                        </ImageListItem>
-                      ))
-                    }
-                  </ImageList>
+                <Grid size={{ xs: 12 }}>
+                  <ImageGallery product_id={p.id} />
                 </Grid>
               </Grid>
             );

@@ -20,7 +20,11 @@ export default class Login extends Component {
     evt.stopPropagation();
     try {
       const { username, password } = this.state;
-      const { data } = await axios.post('https://api.resinbunch.com/auth', { username, password});
+      const params = {
+        username: username.toLowerCase(),
+        password: password,
+      };
+      const { data } = await axios.post('https://api.resinbunch.com/auth', params);
       this.context.setToken(data.access_token);
       const queryParams = new URLSearchParams(window.location.search);
       if (queryParams.has('returnTo')) {
