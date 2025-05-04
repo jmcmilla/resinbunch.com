@@ -1,4 +1,4 @@
-import { Alert, AlertTitle, CircularProgress, ImageList, ImageListItem, ImageListItemBar } from '@mui/material';
+import { Alert, AlertTitle, ImageList, ImageListItem, ImageListItemBar } from '@mui/material';
 import { Component } from 'react';
 import PropTypes from 'prop-types';
 import { queueAPI } from '../utils';

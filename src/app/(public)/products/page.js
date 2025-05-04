@@ -1,4 +1,9 @@
-/* eslint-disable @next/next/no-img-element */
+/*
+ * src/app/(public)/products/page.js
+ * Copyright (c) James R. McMillan
+ */
+
+
 'use client';
 
 import { Component } from 'react';
