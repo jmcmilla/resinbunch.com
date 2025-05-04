@@ -2,8 +2,7 @@
 
 import React from 'react';
 import { AdminContext } from '../context';
-import { Alert, AlertTitle, Button, Container, Divider, Grid, ImageList, ImageListItem, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
-import ImageUpload from './ImageUpload';
+import { Alert, AlertTitle, Button, Container, Divider, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
 import ProductImageGallery from './ProductImageGallery';
 
 class Admin extends React.Component {
@@ -14,8 +13,6 @@ class Admin extends React.Component {
       view: 'list',
       mode: '',
       products: [],
-      count: 0,
-      scannedCount: 0,
       nextId: 0,
       id: 0,
       description: '',
@@ -36,10 +33,8 @@ class Admin extends React.Component {
       method: 'GET',
       url:'/product'
     });
-    if (data['Items']) {
-      copy.products = data['Items'];
-      copy.count = data['Count'];
-      copy.scannedCount = data['ScannedCount'];
+    if (data) {
+      copy.products = data;
       copy.nextId = copy.products.reduce((p, c) => Math.max(p, c.id), 0) + 1;
       console.log('NextID: ', copy.nextId);
     }
