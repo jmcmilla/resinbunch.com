@@ -300,27 +300,6 @@ class Admin extends React.Component {
               {this.state.mode === 'edit' && (
                 <>
                   <ProductImageGallery product_id={this.state.id} />
-                  <Grid item size={12}>
-                    <ImageUpload
-                      maxWidth={900}
-                      maxHeight={1200}
-                      label="Add Image to Gallery"
-                      onSave={async (image) => {
-                        try {
-                          image.product_id = this.state.id;
-                          const request = {
-                            url: '/productImage',
-                            method: 'POST',
-                            data: image
-                          };
-                          await this.context.callAPI(request);
-                          this.setState();
-                        } catch (e) {
-                          this.setState({ error: e.message });
-                        }
-                      }}
-                    />
-                  </Grid>
                 </>
               )}
             </Grid>

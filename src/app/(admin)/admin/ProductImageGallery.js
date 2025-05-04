@@ -7,7 +7,8 @@
 import React, { Component } from 'react';
 import { AdminContext } from '../context';
 import PropTypes from 'prop-types';
-import { Alert, Box, CircularProgress, ImageList, ImageListItem } from '@mui/material';
+import { Alert, Box, Button, CircularProgress, Grid, ImageList, ImageListItem, ImageListItemBar } from '@mui/material';
+import ImageUpload from './ImageUpload';
 
 export default class ProductImageGallery extends Component {
   constructor(props) {
@@ -50,13 +51,52 @@ export default class ProductImageGallery extends Component {
       return <CircularProgress />
     }
     return (
-      <ImageList>
-        {this.state.images.map((i) => (
-          <ImageListItem key={i.uuid}>
-            <Box component="img" src={i.data} alt={i.caption} />
-          </ImageListItem>
-        ))}
-      </ImageList>
+      <Grid size={12}>
+        <ImageList>
+          {this.state.images.map((i) => (
+            <ImageListItem key={i.uuid}>
+              <Box component="img" src={i.data} alt={i.caption} />
+              <ImageListItemBar
+                title={i.caption}
+                position="below"
+                actionIcon={<Button onClick={(evt) => {
+                  this.setState({ loaded: false }, async () => {
+                    if (confirm('Are you sure you want to delete this image?\nClick OK to continue')) {
+                      const request = {
+                        url: '/productImage?uuid=' + i.uuid,
+                        method: 'DELETE',
+                      };
+                      const result = await this.context.callAPI(request);
+                      this.loadImages();
+                    }
+                  });
+                }}>Delete</Button>}
+              />
+            </ImageListItem>
+          ))}
+        </ImageList>
+        <ImageUpload
+          maxWidth={600}
+          maxHeight={900}
+          label="Add Image to Gallery"
+          onSave={async (image) => {
+            this.setState({ loaded: false }, async () => {
+              try {
+                image.product_id = this.props.product_id;
+                const request = {
+                  url: '/productImage',
+                  method: 'POST',
+                  data: image
+                };
+                await this.context.callAPI(request);
+                this.loadImages();
+              } catch (e) {
+                this.setState({ error: e.message });
+              }
+            });
+          }}
+        />
+      </Grid>
     );
   }
 }
