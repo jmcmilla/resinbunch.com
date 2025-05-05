@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import { Button, Container, Grid, Paper, Stack, Typography } from "@mui/material";
 
 export default function ContactUs() {
