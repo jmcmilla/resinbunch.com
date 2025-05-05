@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 /*
  * src/app/(admin)/admin/ImageUpload.js
  * Copyright (c)2025 James R. McMillan
