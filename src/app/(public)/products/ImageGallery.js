@@ -19,11 +19,10 @@ export default class ImageGallery extends Component {
     queueAPI({
       url: '/productImage?product_id=' + this.props.product_id,
       callback: (results) => {
-        const { data } = results;
-        if (data && data.Items) {
+        if (results && results.Items?.length) {
           this.setState({
             loaded: true,
-            images: data.Items,
+            images: results.Items,
           });
         } else {
           this.setState({
@@ -34,6 +33,7 @@ export default class ImageGallery extends Component {
     });
   }
   componentDidMount() {
+    console.log('Mounted ', this.props.product_id);
     this.load().catch((e) => {
       this.setState({
         loaded: true,
@@ -60,6 +60,6 @@ export default class ImageGallery extends Component {
             </ImageListItem>
             ));
     }
-    return <ImageList>{body}</ImageList>;
+    return <ImageList variant="masonry">{body}</ImageList>;
   }
 }

@@ -50,18 +50,18 @@ export default class ImageUpload extends Component {
           if (img.width > img.height) {
             // landscape, set max width and adjust height to correct ratio
             nw = this.maxWidth;
-            nh = img.height * (nw / img.width);
+            nh = Math.ceil(img.height * (nw / img.width));
           } else {
             // portrait, set max height and adjust width to correct ratio
             nh = this.maxHeight;
-            nw = img.width * (nh / img.height);
+            nw = Math.ceil(img.width * (nh / img.height));
           }
-          console.log('resize to: %sx%s', nw, nh);
+          console.log('resize to: ' + nw + 'x' + nh, nw, nh);
           const canvas = document.createElement('canvas');
           canvas.width = nw;
           canvas.height = nh;
           const ctx = canvas.getContext('2d');
-          ctx.imageSmoothingEnabled = false;
+          ctx.imageSmoothingEnabled = true;
           ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, nw, nh);
           data = canvas.toDataURL(file.type);
         }

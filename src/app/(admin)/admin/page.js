@@ -21,6 +21,7 @@ class Admin extends React.Component {
       material_cost: 0,
       other_cost: 0,
       price: 0,
+      available: 0,
       error: false,
     };
     this.handleAddNew = this.handleAddNew.bind(this);
@@ -43,9 +44,12 @@ class Admin extends React.Component {
     return data;
   }
   async deleteProduct() {
+    const copy = JSON.parse(JSON.stringify(this.state));
+    const { id } = copy;
     try {
-      const copy = JSON.parse(JSON.stringify(this.state));
-      const { id } = copy;
+      if (!confirm('Are you sure you want to delete product id: ' + id + '\nClick OK to continue.')) {
+        return;
+      }
       copy.error = '';
       const request = {
         url: `/product?id=${id}`,
@@ -64,10 +68,10 @@ class Admin extends React.Component {
   async saveProduct() {
     try {
       const copy = JSON.parse(JSON.stringify(this.state));
-      const { id, description, category, weight, material_cost, other_cost, price } = copy;
+      const { id, description, category, weight, material_cost, other_cost, price, available } = copy;
       const request = {
         url: '/product',
-        data: { id, description, category, weight, material_cost, other_cost, price }
+        data: { id, description, category, weight, material_cost, other_cost, price, available }
       };
       if (copy.mode === 'new') {
         request.data.id = this.state.nextId;
@@ -88,6 +92,7 @@ class Admin extends React.Component {
       copy.material_cost = 0;
       copy.other_cost = 0;
       copy.price = 0;
+      copy.available = 0;
       this.setState(copy, this.loadProducts);
     } catch (e) {
       console.error(e);
@@ -140,6 +145,7 @@ class Admin extends React.Component {
                         <TableCell>Cost</TableCell>
                         <TableCell>Other Cost</TableCell>
                         <TableCell>Price</TableCell>
+                        <TableCell>Available</TableCell>
                         <TableCell></TableCell>
                       </TableRow>
                     </TableHead>
@@ -159,6 +165,7 @@ class Admin extends React.Component {
                             <TableCell>{formatCurrency(row.material_cost)}</TableCell>
                             <TableCell>{formatCurrency(row.other_cost)}</TableCell>
                             <TableCell>{formatCurrency(row.price)}</TableCell>
+                            <TableCell>{row.available}</TableCell>
                             <TableCell>
                               <Button onClick={(evt) => {
                                 this.setState({
@@ -169,6 +176,7 @@ class Admin extends React.Component {
                                   material_cost: row.material_cost,
                                   other_cost: row.other_cost,
                                   price: row.price,
+                                  available: row.available,
                                   mode: 'edit',
                                   view: 'form'
                                 });
@@ -216,7 +224,7 @@ class Admin extends React.Component {
                   onInput={(evt) => this.setState({ description: evt.target.value })}
                 />
               </Grid>
-              <Grid item size={{ md: 3, xs: 12}}>
+              <Grid item size={{ md: 6, xs: 12}}>
                 <TextField
                   fullWidth
                   label="Weight (oz)"
@@ -230,7 +238,19 @@ class Admin extends React.Component {
                   }}
                 />
               </Grid>
-              <Grid item size={{ md: 3, xs: 12 }}>
+              <Grid item size={{ md: 6, xs: 12 }}>
+                <TextField
+                  fullWidth
+                  label="Available"
+                  value={this.state.available}
+                  onInput={(evt) => {
+                    if (evt.target.value === '' || /^[0-9]+$/.test(evt.target.value)) {
+                      this.setState({ available: evt.target.value })
+                    }
+                  }}
+                />
+              </Grid>
+              <Grid item size={{ md: 4, xs: 12 }}>
                 <TextField
                   fullWidth
                   label="Material Cost"
@@ -251,7 +271,7 @@ class Admin extends React.Component {
                   }}
                 />
               </Grid>
-              <Grid item size={{ md: 3, xs: 12 }}>
+              <Grid item size={{ md: 4, xs: 12 }}>
                 <TextField
                   fullWidth
                   label="Other Cost"
@@ -272,7 +292,7 @@ class Admin extends React.Component {
                   }}
                 />
               </Grid>
-              <Grid item size={{ md: 3, xs: 12 }}>
+              <Grid item size={{ md: 4, xs: 12 }}>
                 <TextField
                   fullWidth
                   label="Price"

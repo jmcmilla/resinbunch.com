@@ -21,6 +21,8 @@ const processQueue = async () => {
   if (apiQueue.length > 0) {
     console.log(apiQueue.length + ' left');
     processInterval = setTimeout(processQueue, 100);
+  } else {
+    checkQueue();
   }
 }
 const queueAPI = (config) => {
@@ -33,7 +35,6 @@ const checkQueue = () => {
     console.log('Processing request queue');
     processQueue();
   } else {
-    console.log('Request queue is empty, check again in half a second');
     checkInterval = setTimeout(checkQueue, 500);
   }
 };

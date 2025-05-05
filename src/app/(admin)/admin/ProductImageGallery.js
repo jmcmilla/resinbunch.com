@@ -76,8 +76,8 @@ export default class ProductImageGallery extends Component {
           ))}
         </ImageList>
         <ImageUpload
-          maxWidth={600}
-          maxHeight={900}
+          maxWidth={400}
+          maxHeight={400}
           label="Add Image to Gallery"
           onSave={async (image) => {
             this.setState({ loaded: false }, async () => {
@@ -88,6 +88,7 @@ export default class ProductImageGallery extends Component {
                   method: 'POST',
                   data: image
                 };
+                alert('size: ' + JSON.stringify(request).length + ' bytes');
                 await this.context.callAPI(request);
                 this.loadImages();
               } catch (e) {

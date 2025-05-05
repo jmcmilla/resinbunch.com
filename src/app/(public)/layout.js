@@ -17,10 +17,12 @@ export default class PublicLayout extends Component {
     if ('undefined' !== typeof window) {
       const pathName = window.location.pathname;
       let current_page;
-      if (/^\/(?:index.html)?$/.test(pathName)) {
+      if (/^\/?(?:index.html)?$/.test(pathName)) {
         current_page = 'home';
       } else if (/^\/contact\-us\/?(?:index.html)?/.test(pathName)) {
         current_page = 'contact-us';
+      } else if (/^\/products\/?(?:index.html)?/.test(pathName)) {
+        current_page = 'products';
       }
       this.setState({ current_page });
     }
@@ -52,6 +54,14 @@ export default class PublicLayout extends Component {
                 }
               }}
             >Home</Button>
+            <Button
+              variant={copy.current_page == 'products' ? 'contained' : 'text' }
+              onClick={(evt) => {
+                evt.preventDefault();
+                evt.stopPropagation();
+                window.location.href = '/products'
+              }}
+            >Products</Button>
             <Button
               variant={copy.current_page == 'contact-us' ? 'contained' : 'text' }
               onClick={(evt) => {
