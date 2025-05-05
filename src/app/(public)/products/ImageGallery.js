@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { Alert, AlertTitle, ImageList, ImageListItem, ImageListItemBar } from '@mui/material';
 import { Component } from 'react';
 import PropTypes from 'prop-types';
