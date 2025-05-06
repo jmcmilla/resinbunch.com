@@ -2,7 +2,7 @@
 import { Alert, AlertTitle, ImageList, ImageListItem, ImageListItemBar } from '@mui/material';
 import { Component } from 'react';
 import PropTypes from 'prop-types';
-import { queueAPI } from '../utils';
+import { queueAPI, callAPI } from '../utils';
 
 export default class ImageGallery extends Component {
   constructor(props) {
@@ -16,17 +16,32 @@ export default class ImageGallery extends Component {
   static propTypes = {
     product_id: PropTypes.number.isRequired,
   };
+  async loadNext(lastEvaluatedKey) {
+    const { images } = this.state;
+    const data = await callAPI({
+      url: '/productImage?product_id=' + this.props.product_id + '&lastEvaluatedKey=' + lastEvaluatedKey,
+    });
+    this.setState({ images: images.concat(data.Items)}, () => {
+      if (data['LastEvaluatedKey']) {
+        this.loadNext(data['LastEvaluatedKey'].uuid);
+      } else {
+        this.setState({ loaded: true });
+      }
+    });
+  }
   async load() {
     queueAPI({
       url: '/productImage?product_id=' + this.props.product_id,
       callback: (results) => {
-        if (results && results.Items?.length) {
+        if (results && results['LastEvaluatedKey']) {
           this.setState({
-            loaded: true,
             images: results.Items,
+          }, () => {
+            this.loadNext(results['LastEvaluatedKey'].uuid);
           });
         } else {
           this.setState({
+            images: results.Items,
             loaded: true,
           });
         }
@@ -53,7 +68,9 @@ export default class ImageGallery extends Component {
     if (this.state.loaded && this.state.images.length > 0) {
       body = this.state.images.map((i) => (
             <ImageListItem key={i.uuid}>
-              <img src={i.data} alt={i.caption} />
+              <a href={i.data} download={true}>
+                <img src={i.data} alt={i.caption} />
+              </a>
               <ImageListItemBar
                 title={i.caption}
                 position="below"

@@ -21,16 +21,18 @@ export default class ProductImageGallery extends Component {
   }
   async loadImages() {
     try {
-      const request = {
-        url: `/productImage?product_id=${this.props.product_id}`,
-        method: 'GET',
-      };
-      const { data } = await this.context.callAPI(request);
-      if (!data) {
-        throw new Error('No Images Found');
-      }
-      const { Items } = data;
-      this.setState({ images: Items, loaded: true, error: false });
+      let lastEvaluatedKey;
+      let images = [];
+      do {
+        const request = {
+          url: `/productImage?product_id=${this.props.product_id}${lastEvaluatedKey ? '&lastEvaluatedKey=' + lastEvaluatedKey : ''}`,
+          method: 'GET',
+        };
+        const { data } = await this.context.callAPI(request);
+        lastEvaluatedKey = data['LastEvaluatedKey'] ? data['LastEvaluatedKey'].uuid : undefined;
+        images = images.concat(data.Items);
+      } while (lastEvaluatedKey);
+      this.setState({ images, loaded: true, error: false });
     } catch (e) {
       this.setState({ error: e.message, loaded: true });
     }
