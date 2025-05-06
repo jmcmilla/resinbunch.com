@@ -4,11 +4,18 @@ import React from 'react';
 import { AdminContext } from '../context';
 import { Alert, AlertTitle, Button, Container, Divider, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
 import ProductImageGallery from './ProductImageGallery';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+
+const formatCurrency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format;
 
 class Admin extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      sortCol: 'id',
+      sortDir: 'asc',
+      keyword: '',
       loaded: false,
       view: 'list',
       mode: '',
@@ -26,6 +33,9 @@ class Admin extends React.Component {
     };
     this.handleAddNew = this.handleAddNew.bind(this);
     this.saveProduct = this.saveProduct.bind(this);
+    this.doFilter = this.doFilter.bind(this);
+    this.doSort = this.doSort.bind(this);
+    this.toggleSort = this.toggleSort.bind(this);
   }
   static contextType = AdminContext;
   async loadProducts() {
@@ -105,6 +115,43 @@ class Admin extends React.Component {
     evt.preventDefault();
     this.setState({ view: 'form', mode: 'new' });
   }
+  toggleSort(col) {
+    const { sortCol, sortDir } = this.state;
+    let rdir = 'asc';
+    if (sortCol === col) {
+      if (sortDir === 'asc') {
+        rdir = 'desc';
+      }
+    }
+    this.setState({ sortCol: col, sortDir: rdir });
+  }
+  doFilter(p) {
+    const { keyword } = this.state;
+    const exp = new RegExp('.*' + keyword + '.*', 'gi');
+    return exp.test(p.description) || exp.test(p.category) || exp.test(formatCurrency(p.price));
+  }
+  doSort(a,b) {
+    const { sortDir, sortCol } = this.state;
+    let r;
+    switch(sortCol) {
+      case 'category':
+      case 'description':
+        if (sortDir === 'desc') {
+          r = a[sortCol].localeCompare(b[sortCol]);
+        } else {
+          r = b[sortCol].localeCompare(a[sortCol]);
+        }
+        break;
+      default:
+        if (sortDir === 'desc') {
+          r = Number(a[sortCol]) - Number(b[sortCol]);
+        } else {
+          r = Number(b[sortCol]) - Number(a[sortCol]);
+        }
+        break;
+    }
+    return r;
+  }
   componentDidMount() {
     this.loadProducts().catch((e) => {
       console.log(e);
@@ -112,7 +159,7 @@ class Admin extends React.Component {
     });
   }
   render() {
-    const formatCurrency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format;
+    const { sortCol, sortDir } = this.state;
     return (
       <Container maxWidth="xl">
         <Paper sx={{ padding: '10px' }}>
@@ -129,7 +176,16 @@ class Admin extends React.Component {
                   <Grid item size={6}>
                     <Typography variant="h4">Products</Typography>
                   </Grid>
-                  <Grid item size={6} sx={{ textAlign: 'right' }}>
+                  <Grid item size={3} sx={{ textAlign: 'right' }}>
+                    <TextField fullWidth
+                      variant="standard"
+                      label="Keyword"
+                      value={this.state.keyword}
+                      onInput={(evt) => {
+                      this.setState({ keyword: evt.target.value });
+                    }} />
+                  </Grid>
+                  <Grid item size={3} sx={{ textAlign: 'right' }}>
                     <Button onClick={this.handleAddNew}>Add New</Button>
                   </Grid>
                 </Grid>
@@ -138,14 +194,46 @@ class Admin extends React.Component {
                   <Table>
                     <TableHead>
                       <TableRow>
-                        <TableCell>ID</TableCell>
-                        <TableCell>Category</TableCell>
-                        <TableCell>Description</TableCell>
-                        <TableCell>Weight</TableCell>
-                        <TableCell>Cost</TableCell>
-                        <TableCell>Other Cost</TableCell>
-                        <TableCell>Price</TableCell>
-                        <TableCell>Available</TableCell>
+                        <TableCell onClick={() => this.toggleSort('id')}>
+                          ID
+                          {sortCol === 'id' && sortDir === 'asc' && <KeyboardArrowUpIcon />}
+                          {sortCol === 'id' && sortDir === 'desc' && <KeyboardArrowDownIcon />}
+                        </TableCell>
+                        <TableCell onClick={() => this.toggleSort('category')}>
+                          Category
+                          {sortCol === 'category' && sortDir === 'asc' && <KeyboardArrowUpIcon />}
+                          {sortCol === 'category' && sortDir === 'desc' && <KeyboardArrowDownIcon />}
+                        </TableCell>
+                        <TableCell onClick={() => this.toggleSort('description')}>
+                          Description
+                          {sortCol === 'description' && sortDir === 'asc' && <KeyboardArrowUpIcon />}
+                          {sortCol === 'description' && sortDir === 'desc' && <KeyboardArrowDownIcon />}
+                        </TableCell>
+                        <TableCell onClick={() => this.toggleSort('weight')}>
+                          Weight
+                          {sortCol === 'weight' && sortDir === 'asc' && <KeyboardArrowUpIcon />}
+                          {sortCol === 'weight' && sortDir === 'desc' && <KeyboardArrowDownIcon />}
+                        </TableCell>
+                        <TableCell onClick={() => this.toggleSort('material_cost')}>
+                          Cost
+                          {sortCol === 'material_cost' && sortDir === 'asc' && <KeyboardArrowUpIcon />}
+                          {sortCol === 'material_cost' && sortDir === 'desc' && <KeyboardArrowDownIcon />}
+                        </TableCell>
+                        <TableCell onClick={() => this.toggleSort('other_cost')}>
+                          Other Cost
+                          {sortCol === 'other_cost' && sortDir === 'asc' && <KeyboardArrowUpIcon />}
+                          {sortCol === 'other_cost' && sortDir === 'desc' && <KeyboardArrowDownIcon />}
+                        </TableCell>
+                        <TableCell onClick={() => this.toggleSort('price')}>
+                          Price
+                          {sortCol === 'price' && sortDir === 'asc' && <KeyboardArrowUpIcon />}
+                          {sortCol === 'price' && sortDir === 'desc' && <KeyboardArrowDownIcon />}
+                        </TableCell>
+                        <TableCell onClick={() => this.toggleSort('available')}>
+                          Available
+                          {sortCol === 'available' && sortDir === 'asc' && <KeyboardArrowUpIcon />}
+                          {sortCol === 'available' && sortDir === 'desc' && <KeyboardArrowDownIcon />}
+                        </TableCell>
                         <TableCell></TableCell>
                       </TableRow>
                     </TableHead>
@@ -155,17 +243,17 @@ class Admin extends React.Component {
                           <TableCell style={{ textAlign: 'center' }} colSpan={7}>No Data</TableCell>
                         </TableRow>
                       )}
-                      {this.state.products.map((row) => {
+                      {this.state.products.filter(this.doFilter).sort(this.doSort).map((row) => {
                         return (
                           <TableRow key={'product_' + row.id}>
-                            <TableCell>{row.id}</TableCell>
-                            <TableCell>{row.category}</TableCell>
-                            <TableCell>{row.description}</TableCell>
-                            <TableCell>{row.weight}</TableCell>
-                            <TableCell>{formatCurrency(row.material_cost)}</TableCell>
-                            <TableCell>{formatCurrency(row.other_cost)}</TableCell>
-                            <TableCell>{formatCurrency(row.price)}</TableCell>
-                            <TableCell>{row.available}</TableCell>
+                            <TableCell sx={{ backgroundColor: (sortCol === 'id' ? 'rgba(128,128,128,.3)' : '')}}>{row.id}</TableCell>
+                            <TableCell sx={{ backgroundColor: (sortCol === 'category' ? 'rgba(128,128,128,.3)' : '') }}>{row.category}</TableCell>
+                            <TableCell sx={{ backgroundColor: (sortCol === 'description' ? 'rgba(128,128,128,.3)' : '') }}>{row.description}</TableCell>
+                            <TableCell sx={{ backgroundColor: (sortCol === 'weight' ? 'rgba(128,128,128,.3)' : '') }}>{row.weight}</TableCell>
+                            <TableCell sx={{ backgroundColor: (sortCol === 'material_cost' ? 'rgba(128,128,128,.3)' : '') }}>{formatCurrency(row.material_cost)}</TableCell>
+                            <TableCell sx={{ backgroundColor: (sortCol === 'other_cost' ? 'rgba(128,128,128,.3)' : '') }}>{formatCurrency(row.other_cost)}</TableCell>
+                            <TableCell sx={{ backgroundColor: (sortCol === 'price' ? 'rgba(128,128,128,.3)' : '') }}>{formatCurrency(row.price)}</TableCell>
+                            <TableCell sx={{ backgroundColor: (sortCol === 'available' ? 'rgba(128,128,128,.3)' : '') }}>{row.available}</TableCell>
                             <TableCell>
                               <Button onClick={(evt) => {
                                 this.setState({

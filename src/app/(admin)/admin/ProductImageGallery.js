@@ -88,7 +88,6 @@ export default class ProductImageGallery extends Component {
                   method: 'POST',
                   data: image
                 };
-                alert('size: ' + JSON.stringify(request).length + ' bytes');
                 await this.context.callAPI(request);
                 this.loadImages();
               } catch (e) {
