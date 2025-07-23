@@ -1,5 +1,6 @@
+/* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable @next/next/no-img-element */
-import { Alert, AlertTitle, ImageList, ImageListItem, ImageListItemBar } from '@mui/material';
+import { Alert, AlertTitle, Button, Dialog, DialogTitle, Grid, ImageList, ImageListItem, ImageListItemBar } from '@mui/material';
 import { Component } from 'react';
 import PropTypes from 'prop-types';
 import { queueAPI, callAPI } from '../utils';
@@ -10,6 +11,9 @@ export default class ImageGallery extends Component {
     this.state = {
       loaded: false,
       error: false,
+      view: 'gallery',
+      src: '',
+      caption: '',
       images: [],
     };
   }
@@ -65,19 +69,42 @@ export default class ImageGallery extends Component {
         {this.state.error}
       </Alert>
     }
-    if (this.state.loaded && this.state.images.length > 0) {
-      body = this.state.images.map((i) => (
-            <ImageListItem key={i.uuid}>
-              <a href={i.data} download={true}>
-                <img src={i.data} alt={i.caption} />
-              </a>
-              <ImageListItemBar
-                title={i.caption}
-                position="below"
-              />
-            </ImageListItem>
-            ));
+    if (this.state.view === 'gallery') {
+      if (this.state.loaded && this.state.images.length > 0) {
+        body = this.state.images.map((i) => (
+              <ImageListItem key={i.uuid}>
+                <a href="#" onClick={(evt) => {
+                  evt.preventDefault();
+                  evt.stopPropagation();
+                  this.setState({ src: i.data, caption: i.caption, view: 'image' })
+                }}>
+                  <img src={i.data} alt={i.caption} />
+                </a>
+                <ImageListItemBar
+                  title={i.caption}
+                  position="below"
+                />
+              </ImageListItem>
+              ));
+      }
+      return <ImageList variant="masonry">{body}</ImageList>;
+    } else if (this.state.view === 'image') {
+      return (
+        <Dialog fullScreen onClose={(evt) => this.setState({ view: 'gallery' })} open={true}>
+          <DialogTitle>
+            <Grid container>
+              <Grid size={10}>
+                {this.state.caption || 'Image'}
+              </Grid>
+              <Grid size={2} sx={{ textAlign: 'right'}}>
+                <Button onClick={(evt) => {this.setState({ view: 'gallery', src: '', caption: '' })}}>
+                  &times;
+                </Button>
+              </Grid>
+            </Grid>
+          </DialogTitle>
+          <img  src={this.state.src} title={this.state.caption || 'Image'} style={{ width: '100%' }} />
+        </Dialog>);
     }
-    return <ImageList variant="masonry">{body}</ImageList>;
   }
 }

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { AdminContext } from '../context';
-import { Alert, AlertTitle, Button, Container, Divider, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
+import { Alert, AlertTitle, Button, Container, Divider, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow, TextField, Typography } from "@mui/material";
 import ProductImageGallery from './ProductImageGallery';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -47,6 +47,11 @@ class Admin extends React.Component {
     if (data) {
       copy.products = data;
       copy.nextId = copy.products.reduce((p, c) => Math.max(p, c.id), 0) + 1;
+      for(const product of copy.products) {
+        product.total_cost = (product.material_cost + product.other_cost) * product.available;
+        product.revenue = (product.price * product.available);
+        product.profit = product.revenue - product.total_cost;
+      }
       console.log('NextID: ', copy.nextId);
     }
     copy.loaded = true;
@@ -159,9 +164,17 @@ class Admin extends React.Component {
     });
   }
   render() {
-    const { sortCol, sortDir } = this.state;
+    const { sortCol, sortDir, products } = this.state;
+    const total_count = products.length;
+    const total_weight = products.reduce((prev, curr) => prev += parseFloat(curr.weight), 0);
+    const total_material_cost = products.reduce((prev, curr) => prev += parseFloat(curr.material_cost), 0);
+    const total_other_cost = products.reduce((prev, curr) => prev += parseFloat(curr.other_cost), 0);
+    const total_available = products.reduce((prev, curr) => prev += parseInt(curr.available), 0);
+    const total_cost = products.reduce((prev, curr) => prev += parseFloat(curr.total_cost), 0);
+    const total_revenue = products.reduce((prev, curr) => prev += parseFloat(curr.revenue), 0);
+    const total_profit = products.reduce((prev, curr) => prev += parseFloat(curr.profit), 0);
     return (
-      <Container maxWidth="xl">
+      <Container maxWidth={false}>
         <Paper sx={{ padding: '10px' }}>
           {this.state.error && (
             <Alert severity="error">
@@ -234,6 +247,21 @@ class Admin extends React.Component {
                           {sortCol === 'available' && sortDir === 'asc' && <KeyboardArrowUpIcon />}
                           {sortCol === 'available' && sortDir === 'desc' && <KeyboardArrowDownIcon />}
                         </TableCell>
+                        <TableCell onClick={() => this.toggleSort('total_cost')}>
+                          Total Cost
+                          {sortCol === 'total_cost' && sortDir === 'asc' && <KeyboardArrowUpIcon />}
+                          {sortCol === 'total_cost' && sortDir === 'desc' && <KeyboardArrowDownIcon />}
+                        </TableCell>
+                        <TableCell onClick={() => this.toggleSort('revenue')}>
+                          Revenue
+                          {sortCol === 'revenue' && sortDir === 'asc' && <KeyboardArrowUpIcon />}
+                          {sortCol === 'revenue' && sortDir === 'desc' && <KeyboardArrowDownIcon />}
+                        </TableCell>
+                        <TableCell onClick={() => this.toggleSort('profit')}>
+                          Profit
+                          {sortCol === 'profit' && sortDir === 'asc' && <KeyboardArrowUpIcon />}
+                          {sortCol === 'profit' && sortDir === 'desc' && <KeyboardArrowDownIcon />}
+                        </TableCell>
                         <TableCell></TableCell>
                       </TableRow>
                     </TableHead>
@@ -246,14 +274,17 @@ class Admin extends React.Component {
                       {this.state.products.filter(this.doFilter).sort(this.doSort).map((row) => {
                         return (
                           <TableRow key={'product_' + row.id}>
-                            <TableCell sx={{ backgroundColor: (sortCol === 'id' ? 'rgba(128,128,128,.3)' : '')}}>{row.id}</TableCell>
+                            <TableCell sx={{ textAlign: 'right', backgroundColor: (sortCol === 'id' ? 'rgba(128,128,128,.3)' : '')}}>{row.id}</TableCell>
                             <TableCell sx={{ backgroundColor: (sortCol === 'category' ? 'rgba(128,128,128,.3)' : '') }}>{row.category}</TableCell>
                             <TableCell sx={{ backgroundColor: (sortCol === 'description' ? 'rgba(128,128,128,.3)' : '') }}>{row.description}</TableCell>
-                            <TableCell sx={{ backgroundColor: (sortCol === 'weight' ? 'rgba(128,128,128,.3)' : '') }}>{row.weight}</TableCell>
-                            <TableCell sx={{ backgroundColor: (sortCol === 'material_cost' ? 'rgba(128,128,128,.3)' : '') }}>{formatCurrency(row.material_cost)}</TableCell>
-                            <TableCell sx={{ backgroundColor: (sortCol === 'other_cost' ? 'rgba(128,128,128,.3)' : '') }}>{formatCurrency(row.other_cost)}</TableCell>
-                            <TableCell sx={{ backgroundColor: (sortCol === 'price' ? 'rgba(128,128,128,.3)' : '') }}>{formatCurrency(row.price)}</TableCell>
-                            <TableCell sx={{ backgroundColor: (sortCol === 'available' ? 'rgba(128,128,128,.3)' : '') }}>{row.available}</TableCell>
+                            <TableCell sx={{ textAlign: 'right', backgroundColor: (sortCol === 'weight' ? 'rgba(128,128,128,.3)' : '') }}>{row.weight}</TableCell>
+                            <TableCell sx={{ textAlign: 'right', backgroundColor: (sortCol === 'material_cost' ? 'rgba(128,128,128,.3)' : '') }}>{formatCurrency(row.material_cost)}</TableCell>
+                            <TableCell sx={{ textAlign: 'right', backgroundColor: (sortCol === 'other_cost' ? 'rgba(128,128,128,.3)' : '') }}>{formatCurrency(row.other_cost)}</TableCell>
+                            <TableCell sx={{ textAlign: 'right', backgroundColor: (sortCol === 'price' ? 'rgba(128,128,128,.3)' : '') }}>{formatCurrency(row.price)}</TableCell>
+                            <TableCell sx={{ textAlign: 'right', backgroundColor: (sortCol === 'available' ? 'rgba(128,128,128,.3)' : '') }}>{row.available}</TableCell>
+                            <TableCell sx={{ textAlign: 'right', backgroundColor: (sortCol === 'total_cost' ? 'rgba(128,128,128,.3)' : '') }}>{formatCurrency(row.total_cost)}</TableCell>
+                            <TableCell sx={{ textAlign: 'right', backgroundColor: (sortCol === 'revenue' ? 'rgba(128,128,128,.3)' : '') }}>{formatCurrency(row.revenue)}</TableCell>
+                            <TableCell sx={{ textAlign: 'right', backgroundColor: (sortCol === 'profit' ? 'rgba(128,128,128,.3)' : '') }}>{formatCurrency(row.profit)}</TableCell>
                             <TableCell>
                               <Button onClick={(evt) => {
                                 this.setState({
@@ -281,6 +312,20 @@ class Admin extends React.Component {
                         );
                       })}
                     </TableBody>
+                    <TableFooter>
+                      <TableCell sx={{ fontSize: '14pt', fontWeight: 'bold', backgroundColor: (sortCol === 'id' ? 'rgba(128,128,128,.3)' : '') }}></TableCell>
+                      <TableCell sx={{ fontSize: '14pt', fontWeight: 'bold', backgroundColor: (sortCol === 'category' ? 'rgba(128,128,128,.3)' : '') }}></TableCell>
+                      <TableCell sx={{ fontSize: '14pt', fontWeight: 'bold', textAlign: 'right', backgroundColor: (sortCol === 'description' ? 'rgba(128,128,128,.3)' : '') }}>{total_count}</TableCell>
+                      <TableCell sx={{ fontSize: '14pt', fontWeight: 'bold', textAlign: 'right', backgroundColor: (sortCol === 'weight' ? 'rgba(128,128,128,.3)' : '') }}>{total_weight.toFixed(2)}</TableCell>
+                      <TableCell sx={{ fontSize: '14pt', fontWeight: 'bold', textAlign: 'right', backgroundColor: (sortCol === 'material_cost' ? 'rgba(128,128,128,.3)' : '') }}>{formatCurrency(total_material_cost)}</TableCell>
+                      <TableCell sx={{ fontSize: '14pt', fontWeight: 'bold', textAlign: 'right', backgroundColor: (sortCol === 'other_cost' ? 'rgba(128,128,128,.3)' : '') }}>{formatCurrency(total_other_cost)}</TableCell>
+                      <TableCell sx={{ fontSize: '14pt', fontWeight: 'bold', textAlign: 'right', backgroundColor: (sortCol === 'price' ? 'rgba(128,128,128,.3)' : '') }}></TableCell>
+                      <TableCell sx={{ fontSize: '14pt', fontWeight: 'bold', textAlign: 'right', backgroundColor: (sortCol === 'available' ? 'rgba(128,128,128,.3)' : '') }}>{total_available}</TableCell>
+                      <TableCell sx={{ fontSize: '14pt', fontWeight: 'bold', textAlign: 'right', backgroundColor: (sortCol === 'total_cost' ? 'rgba(128,128,128,.3)' : '') }}>{formatCurrency(total_cost)}</TableCell>
+                      <TableCell sx={{ fontSize: '14pt', fontWeight: 'bold', textAlign: 'right', backgroundColor: (sortCol === 'revenue' ? 'rgba(128,128,128,.3)' : '') }}>{formatCurrency(total_revenue)}</TableCell>
+                      <TableCell sx={{ fontSize: '14pt', fontWeight: 'bold', textAlign: 'right', backgroundColor: (sortCol === 'profit' ? 'rgba(128,128,128,.3)' : '') }}>{formatCurrency(total_profit)}</TableCell>
+                      <TableCell></TableCell>
+                    </TableFooter>
                   </Table>
                 </TableContainer>
               </Grid>
