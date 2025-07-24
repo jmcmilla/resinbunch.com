@@ -36,6 +36,9 @@ class Admin extends React.Component {
     this.doFilter = this.doFilter.bind(this);
     this.doSort = this.doSort.bind(this);
     this.toggleSort = this.toggleSort.bind(this);
+    this.exportProducts = this.exportProducts.bind(this);
+    this.loadProducts = this.loadProducts.bind(this);
+    this.deleteProduct = this.deleteProduct.bind(this);
   }
   static contextType = AdminContext;
   async loadProducts() {
@@ -57,6 +60,152 @@ class Admin extends React.Component {
     copy.loaded = true;
     this.setState(copy);
     return data;
+  }
+  async exportProducts() {
+    const copy = JSON.parse(JSON.stringify(this.state));
+    const { products } = copy;
+    if (products.length === 0) {
+      copy.error = 'No products to export';
+      this.setState(copy);
+      return;
+    }
+    const squareMapping = [
+      {
+        name: 'Token',
+        column: false,
+      },
+      {
+        name: 'Item Name',
+        column: 'description',
+      },
+      {
+        name: 'Variation Name',
+        column: false,
+      },
+      {
+        name: 'SKU',
+        column: 'id',
+      },
+      {
+        name: 'Description',
+        column: 'description',
+      },
+      {
+        name: 'Categories',
+        column: 'category',
+      },
+      {
+        name: 'Reporting Category',
+        column: false,
+      },
+      {
+        name: 'GTIN',
+        column: false,
+      },
+      {
+        name: 'Item Type',
+        column: false,
+      },
+      {
+        name: 'Weight (lb)',
+        column: 'weight',
+      },
+      {
+        name: 'Social Media Link Title',
+        column: false,
+      },
+      {
+        name: 'Social Media Link Description',
+        column: false,
+      },
+      {
+        name: 'Price',
+        column: 'price',
+      },
+      {
+        name: 'Online Sale Price',
+        column: 'price',
+      },
+      {
+        name: 'Archived',
+        column: false,
+        transform: () => 'N',
+      },
+      {
+        name: 'Sellable',
+        column: 'available',
+        transform: (v) => v > 0 ? 'Y' : 'N',
+      },
+      {
+        name: 'Contains Alcohol',
+        column: false,
+        transform: () => 'N',
+      },
+      {
+        name: 'Stockable',
+        column: false,
+        transform: () => 'Y',
+      },
+      {
+        name: 'Skip Detail Screen in POS',
+        column: false,
+        transform: () => 'N',
+      },
+      {
+        name: 'Option Name 1',
+        column: false,
+      },
+      {
+        name: 'Option Value 1',
+        column: false,
+      },
+      {
+        name: 'Current Quantity The Resin bunch',
+        column: 'available',
+      },
+      {
+        name: 'New Quantity The Resin bunch',
+        column: 'available',
+      },
+      {
+        name: 'Stock Alert Enabled The Resin bunch',
+        column: false,
+        transform: () => 'Y',
+      },
+      {
+        name: 'Stock Alert Count The Resin bunch',
+        column: false,
+        transform: () => '0',
+      }
+    ];
+    let csvContent = 'data:text/csv;charset=utf-8,' +
+      squareMapping.map((o) => o.name).join(',') + '\n';
+    for (const p of products) {
+      for (const o of squareMapping) {
+        if (o.column) {
+          if (o.transform) {
+            csvContent += o.transform(p[o.column]) + ',';
+          } else {
+            csvContent += p[o.column] + ',';
+          }
+        } else if (o.transform) {
+          csvContent += o.transform() + ',';
+        } else {
+          csvContent += ',';
+        }
+      }
+      csvContent += '\n';
+    }
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'products.csv');
+    document.body.appendChild(link); // Required for FF
+    link.click();
+    document.body.removeChild(link);
+    copy.error = '';
+    this.setState(copy);
   }
   async deleteProduct() {
     const copy = JSON.parse(JSON.stringify(this.state));
@@ -200,6 +349,7 @@ class Admin extends React.Component {
                   </Grid>
                   <Grid item size={3} sx={{ textAlign: 'right' }}>
                     <Button onClick={this.handleAddNew}>Add New</Button>
+                    <Button onClick={this.exportProducts}>Export</Button>
                   </Grid>
                 </Grid>
                 <Divider />

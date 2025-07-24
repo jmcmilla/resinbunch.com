@@ -9,7 +9,7 @@ const formatDateTime = (value) => {
     return value;
   }
   const [, year, month, day, hour, minute, second, ms] = reg.exec(value);
-  d = new Date(year, parseInt(month) - 1, day, hour, minute, second, ms);
+  d = new Date(Date.UTC(year, parseInt(month) - 1, day, hour, minute, second, ms));
   return d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
 }
 const formatCurrency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format;
